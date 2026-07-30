@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import toast from "react-hot-toast";
-import { BookOpen, LogIn } from "lucide-react";
+import { BookOpen, LogIn, Sun, Moon } from "lucide-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,7 +34,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: "20px" }}>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", padding: "20px", position: "relative" }}>
+      <button 
+        onClick={toggleTheme}
+        className="btn btn-secondary" 
+        style={{ position: "absolute", top: "24px", right: "24px", padding: "10px", borderRadius: "50%" }}
+        title={theme === "dark" ? "Chuyển sang Chế độ Sáng (Light)" : "Chuyển sang Chế độ Tối (Dark)"}
+      >
+        {theme === "dark" ? <Sun size={20} color="#f59e0b" /> : <Moon size={20} color="#8b5cf6" />}
+      </button>
+
       <div className="glass-panel" style={{ width: "100%", maxWidth: "420px", padding: "40px 32px" }}>
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <div style={{
