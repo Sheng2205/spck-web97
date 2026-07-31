@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import ProfileModal from "./ProfileModal";
 import { 
   BookOpen, 
   LayoutDashboard, 
@@ -11,12 +13,14 @@ import {
   ShieldCheck,
   UserCheck,
   Sun,
-  Moon
+  Moon,
+  Edit3
 } from "lucide-react";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -99,27 +103,56 @@ const Sidebar = () => {
       </nav>
 
       <div style={{ paddingTop: "16px", borderTop: "1px solid var(--border-color)", display: "flex", flexDirection: "column", gap: "12px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px" }}>
-          <div style={{
-            width: "36px", height: "36px", borderRadius: "50%", background: "var(--bg-secondary)",
-            display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-primary)",
+        <div 
+          onClick={() => setIsProfileOpen(true)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "8px 10px",
+            borderRadius: "var(--radius-sm)",
+            cursor: "pointer",
+            transition: "var(--transition)",
+            background: "rgba(255, 255, 255, 0.03)",
             border: "1px solid var(--border-color)"
-          }}>
-            {user?.role === "Admin" ? <ShieldCheck size={20} /> : <UserCheck size={20} />}
-          </div>
-          <div style={{ overflow: "hidden" }}>
-            <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {user?.userName || "Người dùng"}
+          }}
+          className="user-profile-card"
+          title="Bấm để chỉnh sửa hồ sơ"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
+            <div style={{
+              width: "38px", height: "38px", borderRadius: "50%", background: "var(--bg-secondary)",
+              display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-primary)",
+              border: "1.5px solid var(--accent-primary)", flexShrink: 0, overflow: "hidden"
+            }}>
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : user?.role === "Admin" ? (
+                <ShieldCheck size={20} />
+              ) : (
+                <UserCheck size={20} />
+              )}
             </div>
-            <span className={`badge ${user?.role === "Admin" ? "badge-admin" : "badge-user"}`}>
-              {user?.role}
-            </span>
+            <div style={{ overflow: "hidden" }}>
+              <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {user?.userName || "Người dùng"}
+              </div>
+              <span className={`badge ${user?.role === "Admin" ? "badge-admin" : "badge-user"}`}>
+                {user?.role}
+              </span>
+            </div>
           </div>
+          <button className="btn btn-secondary" style={{ padding: "6px", borderRadius: "50%", minWidth: "auto" }}>
+            <Edit3 size={14} />
+          </button>
         </div>
+
         <button onClick={handleLogout} className="btn btn-danger" style={{ width: "100%", justifyContent: "flex-start" }}>
           <LogOut size={16} /> Đăng xuất
         </button>
       </div>
+
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
 
       <style>{`
         .sidebar-link {

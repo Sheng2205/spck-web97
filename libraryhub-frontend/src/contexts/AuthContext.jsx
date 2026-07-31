@@ -37,13 +37,32 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  const updateProfile = async (data) => {
+    const res = await API.put("/users/profile", data);
+    setUser(res.data.data);
+    return res.data;
+  };
+
+  const refreshProfile = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      try {
+        const res = await API.get("/users/profile");
+        setUser(res.data.data);
+      } catch (err) {
+        localStorage.removeItem("accessToken");
+        setUser(null);
+      }
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("accessToken");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, updateProfile, refreshProfile, logout }}>
       {children}
     </AuthContext.Provider>
   );

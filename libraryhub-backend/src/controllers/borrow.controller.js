@@ -144,3 +144,67 @@ export const getAllBorrowRecords = async (req, res) => {
 
     }
 };
+
+export const deleteBorrowHistoryByPeriod = async (req, res) => {
+    try {
+        const { timeframe, onlyReturned = true } = req.body;
+        const query = {};
+
+        if (onlyReturned) {
+            query.status = "Returned";
+        }
+
+        const now = new Date();
+
+        if (timeframe === "day") {
+            const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            query.createdAt = { $gte: past24h };
+        } else if (timeframe === "week") {
+            const past7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            query.createdAt = { $gte: past7d };
+        } else if (timeframe === "month") {
+            const past30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            query.createdAt = { $gte: past30d };
+        } else if (timeframe === "older_30_days") {
+            const past30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            query.createdAt = { $lt: past30d };
+        }
+
+        const result = await Borrow.deleteMany(query);
+
+        return res.status(200).json({
+            success: true,
+            message: `Đã xóa ${result.deletedCount} phiếu mượn/trả.`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+export const deleteSingleBorrowRecord = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const record = await Borrow.findByIdAndDelete(id);
+
+        if (!record) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy phiếu mượn/trả."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Xóa phiếu mượn/trả thành công."
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
 
     try {
 
@@ -19,14 +20,29 @@ const authMiddleware = (req, res, next) => {
             process.env.JWT_SECRET
         );
 
-        req.user = decoded;
+        const user = await User.findById(decoded.id).select("-password");
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Tài khoản không tồn tại."
+            });
+        }
+
+        req.user = {
+            id: user._id.toString(),
+            _id: user._id,
+            userName: user.userName,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar
+        };
 
         next();
 
     } catch (error) {
 
         res.status(401).json({
-            message: "Token không hợp lệ."
+            message: "Token không hợp lệ hoặc đã hết hạn."
         });
 
     }

@@ -5,6 +5,7 @@ import roleMiddleware from "../middlewares/role.middleware.js";
 
 import {
     getProfile,
+    updateProfile,
     getAllUsers,
     updateUser
 } from "../controllers/user.controller.js";
@@ -15,6 +16,12 @@ router.get(
     "/profile",
     authMiddleware,
     getProfile
+);
+
+router.put(
+    "/profile",
+    authMiddleware,
+    updateProfile
 );
 
 router.get(

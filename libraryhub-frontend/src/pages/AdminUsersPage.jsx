@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import API from "../api/axios";
+import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user: currentUser, refreshProfile } = useAuth();
 
   const fetchUsers = async () => {
     try {
@@ -22,13 +24,16 @@ const AdminUsersPage = () => {
     fetchUsers();
   }, []);
 
-  const handleToggleRole = async (user) => {
-    const newRole = user.role === "Admin" ? "User" : "Admin";
-    if (!window.confirm(`Đổi quyền của ${user.userName} thành ${newRole}?`)) return;
+  const handleToggleRole = async (u) => {
+    const newRole = u.role === "Admin" ? "User" : "Admin";
+    if (!window.confirm(`Đổi quyền của ${u.userName} thành ${newRole}?`)) return;
 
     try {
-      await API.put(`/users/${user._id}`, { role: newRole });
+      await API.put(`/users/${u._id}`, { role: newRole });
       toast.success("Cập nhật quyền thành công!");
+      if (currentUser && (currentUser._id === u._id || currentUser.id === u._id)) {
+        await refreshProfile();
+      }
       fetchUsers();
     } catch (err) {
       toast.error(err.response?.data?.message || "Không thể cập nhật quyền.");

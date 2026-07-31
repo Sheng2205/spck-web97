@@ -29,6 +29,39 @@ export const getProfile = async (req, res) => {
 
 };
 
+export const updateProfile = async (req, res) => {
+    try {
+        const { userName, avatar } = req.body;
+        const updateData = {};
+        if (userName !== undefined) updateData.userName = userName;
+        if (avatar !== undefined) updateData.avatar = avatar;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updateData,
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy người dùng."
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Cập nhật hồ sơ thành công.",
+            data: user
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 export const getAllUsers = async (req, res) => {
 
     try {

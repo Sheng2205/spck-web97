@@ -7,7 +7,9 @@ import {
     borrowBook,
     returnBook,
     getMyBorrowedBooks,
-    getAllBorrowRecords
+    getAllBorrowRecords,
+    deleteBorrowHistoryByPeriod,
+    deleteSingleBorrowRecord
 } from "../controllers/borrow.controller.js";
 
 const router = express.Router();
@@ -25,6 +27,20 @@ router.get(
     authMiddleware,
     roleMiddleware("Admin"),
     getAllBorrowRecords
+);
+
+router.delete(
+    "/history",
+    authMiddleware,
+    roleMiddleware("Admin"),
+    deleteBorrowHistoryByPeriod
+);
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    roleMiddleware("Admin"),
+    deleteSingleBorrowRecord
 );
 
 export default router;
